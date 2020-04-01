@@ -22,6 +22,6 @@ jobs:
           for image_path in $(find . -type d -exec [ -e {}/Dockerfile ] \; -print -prune); do
             image="$(echo $image_path | sed -e 's#^\./##' -e 's#/$##' -e 's#/#-#g')"
             cd "$image_path"
-            docker build --tag ${{ secrets.DOCKER_HUB_USERNAME }}/$image:${{ steps.vars.outputs.tag }} ."
+            docker build --tag ${{ secrets.DOCKER_HUB_USERNAME }}/$image:${{ steps.vars.outputs.tag }} .
             cd "$repo_root_dir"
           done
