@@ -25,6 +25,7 @@ RUN yum update -y && \
 		bzip2-devel \
 		bzip2-libs \
 		ca-certificates \
+		cmake \
 		coreutils \
 		cpp \
 		cracklib \
@@ -106,7 +107,7 @@ RUN yum update -y && \
 		libsmartcols \
 		libtool \
 		libutempter \
-        libuuid-devel \
+		libuuid-devel \
 		lz4 \
 		m4 \
 		man \
@@ -212,6 +213,7 @@ RUN set -ex; \
 	rm /tmp/bmake.zip; \
 	cd /usr/src/bmake/bmake-master; \
 	./boot-strap --prefix=/usr/local --install; \
+	cd /; \
 	rm -rf /usr/src/bmake
 RUN set -ex; \
 	export VERSIONS="3.5.9 3.6.10 3.7.7 3.8.2"; \
@@ -221,13 +223,8 @@ RUN set -ex; \
 		curl -L https://www.python.org/ftp/python/$V/Python-$V.tar.xz | tar -x -J -C /usr/src/python/$V --strip-components=1; \
 		cd /usr/src/python/$V; \
 		./configure \
-            --prefix=/usr/local \
-			# --enable-loadable-sqlite-extensions \
+			--prefix=/usr/local \
 			--enable-optimizations \
-			# --enable-option-checking=fatal \
-			# --enable-shared \
-			# --with-system-expat \
-			# --with-system-ffi \
         ; \
 		make -j "$(nproc)"; \
 		if [ "$V" == "$(echo $VERSIONS | tr '[:space:]' '\n' | sort -V | tail -n1)" ]; then \
@@ -241,19 +238,21 @@ RUN set -ex; \
 			make altinstall; \
 		fi; \
 		ldconfig; \
-        export PYTHON_BINARY="python3.$(echo $V | awk -F. '{ print $2 }')"; \
+		export PYTHON_BINARY="python3.$(echo $V | awk -F. '{ print $2 }')"; \
 		if [ "$V" == "$(echo $VERSIONS | tr '[:space:]' '\n' | sort -V | tail -n1)" ]; then \
-            if [ "$(python -V)" != "$(python3 -V)" ]; then \
-                echo python and python3 versions do not match for primary version $V; \
-                exit 1; \
-            elif [ "$(python3 -V)" != "$($PYTHON_BINARY -V)" ]; then \
-                echo python3 and $PYTHON_BINARY versions do not match for primary version $V; \
-                exit 1; \
-            fi; \
-        else \
-            $PYTHON_BINARY -V; \
-        fi; \
-	done
+			if [ "$(python -V)" != "$(python3 -V)" ]; then \
+				echo python and python3 versions do not match for primary version $V; \
+				exit 1; \
+			elif [ "$(python3 -V)" != "$($PYTHON_BINARY -V)" ]; then \
+				echo python3 and $PYTHON_BINARY versions do not match for primary version $V; \
+				exit 1; \
+			fi; \
+		else \
+			$PYTHON_BINARY -V; \
+		fi; \
+	done; \
+	cd /; \
+	rm -rf /usr/src/python
 RUN set -ex; \
 	export LDFLAGS="-Wl,-rpath /usr/local/lib"; \
 	export LD_RUN_PATH=/usr/local/lib; \
@@ -263,6 +262,7 @@ RUN set -ex; \
 	./configure --prefix=/usr/local; \
 	make; \
 	make install; \
+	cd /; \
 	rm -rf /usr/src/node
 RUN set -ex; \
 	npm install -g npm; \
@@ -273,3 +273,14 @@ RUN set -ex; \
 RUN set -ex; \
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y -v
 ENV PATH="$HOME/.cargo/bin:$PATH"
+RUN set -ex; \
+	mkdir -p /usr/src/aws-sdk-cpp; \
+	curl -L "$(curl -s https://api.github.com/repos/aws/aws-sdk-cpp/releases/latest | jq -r .tarball_url)" | tar -x -z -C /usr/src/aws-sdk-cpp --strip-components=1; \
+	cd /usr/src/aws-sdk-cpp; \
+	mkdir build; \
+	cd build; \
+	cmake ../ -GNinja -DCMAKE_BUILD_TYPE=Release; \
+	ninja; \
+	ninja install; \
+	cd /; \
+	rm -rf /usr/src/aws-sdk-cpp
