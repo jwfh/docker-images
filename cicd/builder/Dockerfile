@@ -1,4 +1,6 @@
 FROM amazonlinux:latest
+LABEL Maintainer="jacob@jwfh.ca"
+LABEL Version="0.1.0"
 ENV LANG=C.UTF-8
 RUN yum update -y && \
 	yum install -y \
