@@ -21,13 +21,12 @@ jobs:
             cd cicd/python
             docker build --tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest .
             version="$(docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest | jq -r .[0].ContainerConfig.Labels.Version)"
-            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest ${{ secrets.DOCKER_HUB_USERNAME }}/$image:$version
-          done
+            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:$version
       - name: Push the tagged Docker image
         run: |
           cd cicd/python
           if [ "${{ steps.branch.outputs.branch }}" == "master" ]; then
             docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest
             version="$(docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:latest | jq -r .[0].ContainerConfig.Labels.Version)"
-            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$image:$version
+            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-python:$version
           fi

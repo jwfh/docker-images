@@ -21,13 +21,12 @@ jobs:
             cd cicd/cpp
             docker build --tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest .
             version="$(docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest | jq -r .[0].ContainerConfig.Labels.Version)"
-            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest ${{ secrets.DOCKER_HUB_USERNAME }}/$image:$version
-          done
+            docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:$version
       - name: Push the tagged Docker image
         run: |
           cd cicd/cpp
           if [ "${{ steps.branch.outputs.branch }}" == "master" ]; then
             docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest
             version="$(docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:latest | jq -r .[0].ContainerConfig.Labels.Version)"
-            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$image:$version
+            docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cicd-cpp:$version
           fi
