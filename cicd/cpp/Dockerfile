@@ -167,6 +167,7 @@ RUN yum update -y && \
 		perl-threads \
 		perl-threads-shared \
 		pkgconfig \
+		python3 \
 		qrencode-libs \
 		rcs \
 		readline \
@@ -215,64 +216,6 @@ RUN set -ex; \
 	./boot-strap --prefix=/usr/local --install; \
 	cd /; \
 	rm -rf /usr/src/bmake
-RUN set -ex; \
-	export VERSIONS="3.5.9 3.6.10 3.7.7 3.8.2"; \
-	for V in $VERSIONS; do \
-		cd /; \
-		mkdir -p /usr/src/python/$V; \
-		curl -L https://www.python.org/ftp/python/$V/Python-$V.tar.xz | tar -x -J -C /usr/src/python/$V --strip-components=1; \
-		cd /usr/src/python/$V; \
-		./configure \
-			--prefix=/usr/local \
-			--enable-optimizations \
-        ; \
-		make -j "$(nproc)"; \
-		if [ "$V" == "$(echo $VERSIONS | tr '[:space:]' '\n' | sort -V | tail -n1)" ]; then \
-			make install; \
-			cd /usr/local/bin; \
-			ln -s idle3 idle; \
-			ln -s pydoc3 pydoc; \
-			ln -s python3 python; \
-			ln -s python3-config python-config; \
-		else \
-			make altinstall; \
-		fi; \
-		ldconfig; \
-		export PYTHON_BINARY="python3.$(echo $V | awk -F. '{ print $2 }')"; \
-		if [ "$V" == "$(echo $VERSIONS | tr '[:space:]' '\n' | sort -V | tail -n1)" ]; then \
-			if [ "$(python -V)" != "$(python3 -V)" ]; then \
-				echo python and python3 versions do not match for primary version $V; \
-				exit 1; \
-			elif [ "$(python3 -V)" != "$($PYTHON_BINARY -V)" ]; then \
-				echo python3 and $PYTHON_BINARY versions do not match for primary version $V; \
-				exit 1; \
-			fi; \
-		else \
-			$PYTHON_BINARY -V; \
-		fi; \
-	done; \
-	cd /; \
-	rm -rf /usr/src/python
-RUN set -ex; \
-	export LDFLAGS="-Wl,-rpath /usr/local/lib"; \
-	export LD_RUN_PATH=/usr/local/lib; \
-	mkdir /usr/src/node; \
-	curl -L "$(curl -s https://api.github.com/repos/nodejs/node/releases/latest | jq -r .tarball_url)" | tar -x -z -C /usr/src/node --strip-components=1; \
-	cd /usr/src/node; \
-	./configure --prefix=/usr/local; \
-	make; \
-	make install; \
-	cd /; \
-	rm -rf /usr/src/node
-RUN set -ex; \
-	npm install -g npm; \
-	npm install -g typescript; \
-	npm install -g coffeescript; \
-	npm install -g eslint; \
-	npm install -g gatsby
-RUN set -ex; \
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y -v
-ENV PATH="$HOME/.cargo/bin:$PATH"
 RUN set -ex; \
 	mkdir -p /usr/src/aws-sdk-cpp; \
 	curl -L "https://api.github.com/repos/aws/aws-sdk-cpp/tarball/$(curl -L -s https://api.github.com/repos/aws/aws-sdk-cpp/tags | jq -r .[].name | sort -V | tail -n1)"| tar -x -z -C /usr/src/aws-sdk-cpp --strip-components=1; \
