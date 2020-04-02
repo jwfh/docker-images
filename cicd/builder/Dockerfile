@@ -25,7 +25,7 @@ RUN yum update -y && \
 		bzip2-devel \
 		bzip2-libs \
 		ca-certificates \
-		cmake \
+		cmake3 \
 		coreutils \
 		cpp \
 		cracklib \
@@ -275,7 +275,7 @@ RUN set -ex; \
 ENV PATH="$HOME/.cargo/bin:$PATH"
 RUN set -ex; \
 	mkdir -p /usr/src/aws-sdk-cpp; \
-	curl -L "$(curl -s https://api.github.com/repos/aws/aws-sdk-cpp/releases/latest | jq -r .tarball_url)" | tar -x -z -C /usr/src/aws-sdk-cpp --strip-components=1; \
+	curl -L "https://api.github.com/repos/aws/aws-sdk-cpp/tarball/$(curl -L -s https://api.github.com/repos/aws/aws-sdk-cpp/tags | jq -r .[].name | sort -V | tail -n1)"| tar -x -z -C /usr/src/aws-sdk-cpp --strip-components=1; \
 	cd /usr/src/aws-sdk-cpp; \
 	mkdir build; \
 	cd build; \
