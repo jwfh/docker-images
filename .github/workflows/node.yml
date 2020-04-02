@@ -1,4 +1,4 @@
-name: Python Image CI
+name: Node Image CI
 
 on:
   push:
