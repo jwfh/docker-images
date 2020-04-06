@@ -87,6 +87,8 @@ RUN yum update -y && \
 		libcap-ng \
 		libcilkrts \
 		libcroco \
+		libcurl \
+		libcurl-devel \
 		libdwarf \
 		libedit \
 		libfdisk \
