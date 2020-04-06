@@ -225,7 +225,7 @@ RUN set -ex; \
 	mkdir build; \
 	cd build; \
 	cmake3 ../ -GNinja -DCMAKE_BUILD_TYPE=Release; \
-	ninja; \
-	ninja install; \
+	ninja-build; \
+	ninja-build install; \
 	cd /; \
 	rm -rf /usr/src/aws-sdk-cpp
