@@ -169,6 +169,7 @@ RUN yum update -y && \
 		perl-threads \
 		perl-threads-shared \
 		pkgconfig \
+		pulseaudio-libs-devel \
 		python3 \
 		qrencode-libs \
 		rcs \
