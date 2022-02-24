@@ -216,6 +216,8 @@ RUN set -ex; \
 	unzip -d /usr/src/bmake /tmp/bmake.zip; \
 	rm /tmp/bmake.zip; \
 	cd /usr/src/bmake/bmake-master; \
-	./boot-strap --prefix=/usr/local --install; \
+	./boot-strap --prefix=/usr --install; \
+	mv /usr/bin/make /usr/bin/gmake; \
+	mv /usr/bin/bmake /usr/bin/make; \
 	cd /; \
 	rm -rf /usr/src/bmake
