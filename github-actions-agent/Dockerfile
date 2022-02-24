@@ -1,8 +1,10 @@
-FROM amazonlinux:latest
+FROM amazonlinux:2
+
 LABEL Maintainer="jacob@jwfh.ca"
 LABEL Version="0.1.0"
+
 ENV LANG=C.UTF-8
-RUN yum update -y &&
+RUN yum update -y && \
 	yum install -y \
 		acl \
 		apr \
@@ -200,34 +202,20 @@ RUN yum update -y &&
 		ustr \
 		util-linux \
 		wget \ 
-which \
-	xz \
-	xz-devel \
-	yum-utils \
-	zip \
-	zlib-devel \
-	zsh \
+		which \
+		xz \
+		xz-devel \
+		yum-utils \
+		zip \
+		zlib-devel \
+		zsh \
 	;
-yum-config-manager --add-repo "https://download.opensuse.org/repositories/shells:/fish:/release:/3/RHEL_7/shells:fish:release:3.repo"
-yum -y install fish
-RUN set -ex
-\ 
-curl -L -o /tmp/bmake.zip https://github.com/jwfh/bmake/archive/master.zip
-mkdir -p /usr/src/bmake
-unzip -d /usr/src/bmake /tmp/bmake.zip
-rm /tmp/bmake.zip
-cd /usr/src/bmake/bmake-master
-./boot-strap --prefix=/usr/local --install
-cd /
-rm -rf /usr/src/bmake
-RUN set -ex
-mkdir -p /usr/src/aws-sdk-cpp
-curl -L "https://api.github.com/repos/aws/aws-sdk-cpp/tarball/$(curl -L -s https://api.github.com/repos/aws/aws-sdk-cpp/tags | jq -r .[].name | sort -V | tail -n1)" | tar -x -z -C /usr/src/aws-sdk-cpp --strip-components=1
-cd /usr/src/aws-sdk-cpp
-mkdir build
-cd build
-cmake3 ../ -GNinja -DCMAKE_BUILD_TYPE=Release
-ninja-build
-ninja-build install
-cd /
-rm -rf /usr/src/aws-sdk-cpp
+RUN set -ex; \ 
+	curl -L -o /tmp/bmake.zip https://github.com/jwfh/bmake/archive/master.zip; \
+	mkdir -p /usr/src/bmake; \
+	unzip -d /usr/src/bmake /tmp/bmake.zip; \
+	rm /tmp/bmake.zip; \
+	cd /usr/src/bmake/bmake-master; \
+	./boot-strap --prefix=/usr/local --install; \
+	cd /; \
+	rm -rf /usr/src/bmake
